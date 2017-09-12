@@ -1,2 +1,2 @@
 require:
-      - commands/wp_cli_countfix/command.php
+      - commands/wp_cli_countfix/WP_CLI_Countfix.php
