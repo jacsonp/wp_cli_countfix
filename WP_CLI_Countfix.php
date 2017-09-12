@@ -30,15 +30,22 @@ class WP_CLI_Countfix extends WP_CLI_Command
 				$taxs[$tax] = $this->get_post_types_by_taxonomy($tax, 'string');
 			}
 			$types = $taxs[$tax];
-			echo "term_taxonomy_id: " . $term_taxonomy_id . " count = ";
-			$count = $wpdb->get_var(
+			if(!empty($types))
+			{
+				$count = $wpdb->get_var(
 					"SELECT count(*) FROM " . $wpdb->term_relationships.' as tr INNER JOIN '.
 					$wpdb->posts.' as p on tr.object_id = p.ID '.
-					" WHERE tr.term_taxonomy_id = '$term_taxonomy_id' AND post_type IN ($types) AND p.post_status IN ('publish', 'future') ");
-			echo $count . "\n";
-			$affected += $wpdb->query(
-					"UPDATE " . $wpdb->term_taxonomy .
-					" SET count = '$count' WHERE term_taxonomy_id = '$term_taxonomy_id'");
+					" WHERE tr.term_taxonomy_id = '$term_taxonomy_id' AND post_type IN ($types) AND p.post_status IN ('publish', 'future') "
+				);
+				WP_CLI::log( "term_taxonomy_id: " . $term_taxonomy_id . " count = ".$count );
+				$affected += $wpdb->query(
+						"UPDATE " . $wpdb->term_taxonomy .
+						" SET count = '$count' WHERE term_taxonomy_id = '$term_taxonomy_id'");
+			}
+			else
+			{
+				WP_CLI::warning(__('No valid post types founded for taxonomy'). ': '.$tax);
+			}
 		}
 		
 		
